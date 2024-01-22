@@ -10,7 +10,7 @@
 
     "include": [
         "src/**/*"
-    ],
+, "project/Hardware", "project/main.ts"    ],
     "exclude": [
       "./node_modules"
     ]
