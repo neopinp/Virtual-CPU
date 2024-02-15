@@ -9,7 +9,6 @@ export class System extends Hardware {
   constructor() {
     super('System');
     this.debug = true;
-    console.log("Hello TSIRAM!");
 
     this._CPU = new Cpu();
     this.log('created');

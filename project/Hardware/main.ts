@@ -1,4 +1,4 @@
-import { System } from "./hardware/System";
+import { System } from "./System";
 
 let system: System = new System();
 system.startSystem();
