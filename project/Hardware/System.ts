@@ -23,7 +23,6 @@ export class System extends Hardware {
 
   public startSystem(): boolean {
     this.memory.initializeMemory(); //initialize memory 
-    // Optionally, display initial memory content to demonstrate that it has been initialized
     this.memory.displayMemory(0x00, 0x14);
     this.log('System started');
 
