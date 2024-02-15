@@ -1,5 +1,6 @@
 // hardware/Cpu.ts
 import { Hardware } from "./Hardware";
+// import class 
 
 export class Cpu extends Hardware {
   constructor(debug: boolean = true) {

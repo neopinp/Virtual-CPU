@@ -1,4 +1,5 @@
 import { Hardware } from "./Hardware"; 
+//import class 
 
 export class Memory extends Hardware {
     private memory: Uint8Array;
@@ -9,13 +10,13 @@ export class Memory extends Hardware {
     }
 
     public initializeMemory(): void {
-        this.memory.fill(0x00); // Fill memory with 0x00
+        this.memory.fill(0x00); 
     }
 
     public displayMemory(startAddress: number, endAddress: number): void {
         for (let address = startAddress; address <= endAddress; address++) {
             if (address < this.memory.length) {
-                this.hexLog(address, 4); // Adjust length as needed for address logging
+                this.hexLog(address, 4); // Adjust length as needed
                 console.log(` Contains Value: ${this.memory[address].toString(16).toUpperCase().padStart(2, '0')}`);
             } else {
                 // Handle out-of-bounds addresses gracefully
