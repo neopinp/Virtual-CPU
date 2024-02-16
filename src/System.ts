@@ -1,6 +1,6 @@
-import { Cpu } from "./Cpu";
-import { Hardware } from "./Hardware";
-import { Memory } from "./Memory"; 
+import { Cpu } from "./Hardware/Cpu";
+import { Hardware } from "./Hardware/Hardware";
+import { Memory } from "./Hardware/Memory"; 
 // import classes 
 
 export class System extends Hardware {

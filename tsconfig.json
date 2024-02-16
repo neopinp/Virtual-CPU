@@ -1,17 +1,17 @@
 {
-    "compilerOptions": {
-      "target"              : "ES2017",
-      "module"              : "commonjs",
-      "rootDir"             : "project",
-      "outDir"              : "dist",
-      "sourceMap"           : true,
-      "extendedDiagnostics" : true
-    },
+  "compilerOptions": {
+    "target"              : "ES2017",
+    "module"              : "commonjs",
+    "rootDir"             : "src",
+    "outDir"              : "dist",
+    "sourceMap"           : true,
+    "extendedDiagnostics" : true
+  },
 
-    "include": [
-        "src/**/*"
-, "project/Hardware", "project/Hardware/main.ts", "project/Hardware/Hardware.ts", "project/Hardware/Cpu.ts", "project/Hardware/System.ts"    ],
-    "exclude": [
-      "./node_modules"
-    ]
+  "include": [
+      "src/**/*"
+, "src/System.ts"  ],
+  "exclude": [
+    "./node_modules"
+  ]
 }

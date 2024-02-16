@@ -19,12 +19,11 @@ export class Memory extends Hardware {
                 this.hexLog(address, 4); // Adjust length as needed
                 console.log(` Contains Value: ${this.memory[address].toString(16).toUpperCase().padStart(2, '0')}`);
             } else {
-                // Handle out-of-bounds addresses gracefully
+                // Handle out-of-bounds addresses 
                 console.log(`[HW - RAM id: ${this.id}]: Address : ${address.toString(16).toUpperCase()} Contains Value: ERR [hexValue conversion]: number undefined`);
             }
         }
     }
     
 
-    // Your additional methods will go here
 }
