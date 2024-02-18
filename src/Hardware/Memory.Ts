@@ -1,12 +1,17 @@
 //Memory.ts
 import { Hardware } from "./Hardware"; 
+import { ClockListener } from "./Imp/ClockListener";
 
 
-export class Memory extends Hardware {
+
+export class Memory extends Hardware implements ClockListener{
     private memory: Uint8Array;
+    pulse(): void {
+        this.log('received clock pulse');
+    }
 
-    constructor() {
-        super("Memory");
+    constructor(debug: boolean = true) {
+        super("Memory",debug);
         this.memory = new Uint8Array(65536); // Initialize the memory array with 64K size
     }
 
