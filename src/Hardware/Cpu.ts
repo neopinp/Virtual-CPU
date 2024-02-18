@@ -1,4 +1,4 @@
-// hardware/Cpu.ts
+//Cpu.ts
 import { Hardware } from "./Hardware";
 // import class 
 

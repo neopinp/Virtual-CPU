@@ -1,7 +1,8 @@
+//System.ts
 import { Cpu } from "./Hardware/Cpu";
 import { Hardware } from "./Hardware/Hardware";
 import { Memory } from "./Hardware/Memory"; 
-// import classes 
+
 
 export class System extends Hardware {
   private _CPU: Cpu;

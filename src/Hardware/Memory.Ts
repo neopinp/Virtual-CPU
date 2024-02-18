@@ -1,5 +1,6 @@
+//Memory.ts
 import { Hardware } from "./Hardware"; 
-//import class 
+
 
 export class Memory extends Hardware {
     private memory: Uint8Array;

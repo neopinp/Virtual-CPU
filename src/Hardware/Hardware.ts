@@ -1,3 +1,4 @@
+//hardware.ts
 export class Hardware {
   static nextId: number = 0;
 
