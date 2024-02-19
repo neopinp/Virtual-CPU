@@ -30,7 +30,6 @@ export class System extends Hardware {
 //starts system, intialize memory, display memory state, start system clock 
   public startSystem(): void {
     this.memory.initializeMemory(); 
-    this.memory.displayMemory(0x00, 0x14); 
     this.log('System started'); 
 
     this.clock.startClock(1000);
