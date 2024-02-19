@@ -2,6 +2,7 @@
 import { Hardware } from "./Hardware";
 import { ClockListener } from "./Imp/ClockListener";
 
+//registers listeners (Cpu, Memory)
 export class Clock extends Hardware {
   private listeners: ClockListener[] = [];
   private intervalId: ReturnType<typeof setInterval> | undefined;
@@ -14,12 +15,13 @@ export class Clock extends Hardware {
   registerListener(listener: ClockListener): void {
     this.listeners.push(listener);
   }
-
+//starts the clock that calls the tick() method 
   startClock(interval: number): void {
-    this.log('Clock Pulse Initialized');
+    this.log('Clock Pulse Initialized'); //log start 
     this.intervalId = setInterval(() => this.tick(), interval);
   }
 
+// Clears interval set and stops clock 
   stopClock(): void {
     if (this.intervalId !== undefined) clearInterval(this.intervalId);
   }
