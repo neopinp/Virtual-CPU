@@ -1,5 +1,12 @@
-//mains.ts
+// main.ts
 import { System } from "./System";
 
-let system: System = new System();
+const system = new System();
 system.startSystem();
+
+
+setTimeout(() => {
+  system.stopSystem();
+}, 10000); // Stops the system after 10 seconds
+
+
