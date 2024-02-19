@@ -2,7 +2,7 @@
 import { Hardware } from "./Hardware";
 import { ClockListener } from "./Imp/ClockListener";
 
-//registers listeners (Cpu, Memory)
+//registers listeners (Cpu,Memory)
 export class Clock extends Hardware {
   private listeners: ClockListener[] = [];
   private intervalId: ReturnType<typeof setInterval> | undefined;

@@ -20,7 +20,7 @@ export class Hardware {
     }
   }
 
-// logs hex value (for addresses)
+// logs hex value 
   public hexLog(value: number, length: number = 2): void {
     const hexValue = value.toString(16).toUpperCase().padStart(length, '0');
     console.log(`[HW - ${this.name} id: ${this.id}]: ${hexValue}`);
