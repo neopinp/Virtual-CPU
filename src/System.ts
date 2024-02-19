@@ -32,7 +32,7 @@ export class System extends Hardware {
     this.memory.initializeMemory(); 
     this.memory.displayMemory(0x00, 0x14); // This line displays the memory
     this.log('System started'); 
-
+    
     this.clock.startClock(1000);
     this.running = true;
   }
