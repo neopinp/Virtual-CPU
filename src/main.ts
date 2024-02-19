@@ -2,7 +2,7 @@
 import { System } from "./System";
 
 const system = new System();
-system.startSystem();
+system.startSystem(); // start system 
 
 
 setTimeout(() => {
