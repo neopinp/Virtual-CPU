@@ -24,7 +24,11 @@ export class Memory extends Hardware implements ClockListener {
         this.log("Memory and registers reset to default states.");
     }
 
-  
+    public read(): void {
+        this.mdr = this.memory[this.mar];
+        this.log(`Read: Data 0x${this.mdr.toString(16).toUpperCase()} from MAR: 0x${this.mar.toString(16).toUpperCase()}.`);
+    }
+
     public write(): void {
         this.memory[this.mar] = this.mdr;
         this.log(`Write: Data 0x${this.mdr.toString(16).toUpperCase()} to MAR: 0x${this.mar.toString(16).toUpperCase()}.`);
