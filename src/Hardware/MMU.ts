@@ -6,7 +6,14 @@ export class MMU {
     private cpu: Cpu;
 
     constructor(memory: Memory, cpu: Cpu) {
-        this.memory = Memory;
-        this.cpu = Cpu;
+        this.memory = memory;
+        this.cpu = cpu;
     }
-}
+
+    public getAddressFromParts(lowByte: number, highByte: number): number {
+        // Assuming little-endian format
+        return (highByte << 8) | lowByte;
+    }
+    
+    
+}   
