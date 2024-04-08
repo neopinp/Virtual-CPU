@@ -10,7 +10,6 @@ export class MMU {
         this.cpu = cpu;
     }
 
-    // Existing methods
     public read(address: number): number {
         return this.memory.read(address);
     }
@@ -19,7 +18,6 @@ export class MMU {
         this.memory.write(address, data);
     }
     
-
     public getAddressFromParts(lowByte: number, highByte: number): number {
         return (highByte << 8) | lowByte;
     }
@@ -40,5 +38,20 @@ export class MMU {
 
     public translateLogicalToPhysical(logicalAddress: number): number {
         return logicalAddress; 
+    }
+
+    public loadROM(program: Array<{ address: number, data: number }>): void {
+        program.forEach(instruction => {
+            this.write(instruction.address, instruction.data);
+        });
+        console.log("ROM loaded into memory.");
+    }
+
+    public memoryDump(startAddress: number, endAddress: number): void {
+        console.log(`Memory Dump from 0x${startAddress.toString(16)} to 0x${endAddress.toString(16)}:`);
+        for (let address = startAddress; address <= endAddress; address++) {
+            const data = this.read(address);
+            console.log(`0x${address.toString(16).padStart(4, '0')}: 0x${data.toString(16).padStart(2, '0')}`);
+        }
     }
 }
