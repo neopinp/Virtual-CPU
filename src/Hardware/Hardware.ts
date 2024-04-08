@@ -7,8 +7,8 @@ export class Hardware {
   debug: boolean; // if true: logging is enabled 
 
   constructor(name: string, debug: boolean = true) {
-    this.id = Hardware.nextId++; // increment and assign 
-    this.name = name; // set name 
+    this.id = Hardware.nextId++; 
+    this.name = name; 
     this.debug = debug; 
   }   
 

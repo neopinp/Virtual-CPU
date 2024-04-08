@@ -40,15 +40,19 @@ export class MMU {
         this.write(fullAddress, data);
     }
 
+//output 
     public memoryDump(startAddress: number, endAddress: number): void {
-        console.log(`Memory Dump from 0x${startAddress.toString(16)} to 0x${endAddress.toString(16)}:`);
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Debug`);
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
         for (let address = startAddress; address <= endAddress; address++) {
-            const data = this.read(address); // Utilizes MMU's read method
-            console.log(`0x${address.toString(16).padStart(4, '0')}: 0x${data.toString(16).padStart(2, '0')}`);
+            const data = this.read(address);
+            console.log(`[HW - MMU id: 0 - ${Date.now()}]: Addr ${address.toString(16).padStart(4, '0')}: | ${data.toString(16).toUpperCase()}`);
         }
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Complete`);
     }
-
-    // New method to load a static program into memory
+    
+    // load a static program into memory
     public writeImmediate(): void {
         const program = [
             { address: 0x0000, data: 0xA9 },

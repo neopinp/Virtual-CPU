@@ -25,7 +25,6 @@ export class Memory extends Hardware implements ClockListener {
     }
 // read and write 
     public read(address: number): number {
-        this.log(`Read: Address 0x${address.toString(16).toUpperCase()}`);
         return this.memory[address];
     }
 

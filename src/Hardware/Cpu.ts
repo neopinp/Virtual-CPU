@@ -9,10 +9,10 @@ export class Cpu extends Hardware implements ClockListener {
 
   constructor(debug: boolean = true) {
     super('Cpu', debug);
-    this.mmu = null; 
+    this.mmu = null; // initalizing MMU 
     this.log('created');
   }
-
+// set MMU
   public setMMU(mmu: MMU): void {
     this.mmu = mmu;
   }
@@ -21,7 +21,7 @@ export class Cpu extends Hardware implements ClockListener {
     this.cpuclockCount++;
     this.log(`received clock pulse - CPU Clock Count: ${this.cpuclockCount}`);
   }
-
+// read and write 
   readMemory(address: number): number {
     if (!this.mmu) {
       throw new Error("MMU is not set.");
