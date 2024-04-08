@@ -7,9 +7,9 @@ export class Cpu extends Hardware implements ClockListener {
   private cpuclockCount = 0;
   private mmu: MMU | null;
 
-  constructor(mmu: MMU | null, debug: boolean = true) {
+  constructor(debug: boolean = true) {
     super('Cpu', debug);
-    this.mmu = mmu;
+    this.mmu = null; 
     this.log('created');
   }
 

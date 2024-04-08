@@ -9,18 +9,22 @@ export class System extends Hardware {
   private cpu: Cpu;
   private memory: Memory;
   private clock: Clock;
-  private mmu: MMU;
+  public mmu: MMU;
   public running: boolean = false;
 
   constructor(debug: boolean = true) {
     super('System', debug);
 
+    // Step 1: Initialize Memory
     this.memory = new Memory(debug);
-    // MMU is instantiated without a CPU reference initially
-    this.mmu = new MMU(this.memory, null); // Adjust your MMU constructor accordingly
-    this.cpu = new Cpu(null, debug); // CPU is instantiated without the MMU initially
-    this.cpu.setMMU(this.mmu); // MMU is then set in the CPU
-    this.mmu.setCPU(this.cpu); // Now, properly set the CPU in the MMU, ensure MMU class has a setCPU method.
+
+    this.mmu = new MMU(this.memory); 
+
+   
+    this.cpu = new Cpu(null); 
+    
+    this.cpu.setMMU(this.mmu); 
+    this.mmu.setCPU(this.cpu); 
 
     this.clock = new Clock(debug);
     this.clock.registerListener(this.cpu);
@@ -32,7 +36,7 @@ export class System extends Hardware {
   public startSystem(): void {
     this.memory.reset();
     this.log('System started');
-    this.clock.startClock(1000);
+    this.clock.startClock(1000); 
     this.running = true;
   }
 
@@ -43,9 +47,8 @@ export class System extends Hardware {
   }
 
   public dumpMemory(startAddress: number, endAddress: number): void {
+    // This method should now ideally leverage MMU for memory access, reflecting the CPU-MMU-Memory interaction.
     this.log(`Dumping memory from address ${startAddress} to ${endAddress}`);
-    // Assuming memory display through MMU for consistent access control
-    // Adjust if your MMU class has a direct method for memory dumping
-    this.mmu.memoryDump(startAddress, endAddress); 
+    this.mmu.memoryDump(startAddress, endAddress); // Assuming MMU class has been updated to include a memoryDump method.
   }
 }

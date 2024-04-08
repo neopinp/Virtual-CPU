@@ -11,6 +11,7 @@ export class Clock extends Hardware {
     super('Clock',debug);
     this.log('created');
   }
+  // k
 
   registerListener(listener: ClockListener): void {
     this.listeners.push(listener);
