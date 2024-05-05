@@ -13,7 +13,7 @@ export class MMU {
     public setCPU(cpu: Cpu): void {
         this.cpu = cpu;
     }
-
+a
     public read(address: number): number {
         return this.memory.read(address);
     }
