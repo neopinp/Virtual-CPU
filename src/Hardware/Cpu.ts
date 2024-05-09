@@ -12,7 +12,8 @@ export class Cpu extends Hardware implements ClockListener {
     private operand: number = 0x0000; // Store operand
     private step: number = 0; // Current step in the pipeline
     private carryFlag: boolean = false; // Carry flag 
-    private mmu: MMU | null = null;
+    private mmu: MMU;
+    public debug: boolean;
     // toggle logging 
     private clockLog: boolean = false;
     private memoryLog: boolean = false;
@@ -21,14 +22,15 @@ export class Cpu extends Hardware implements ClockListener {
 
     
 
-    constructor(debug: boolean = true) {
-        super('Cpu', debug);
-        this.log('CPU created', 'cpu');
-    }
-
-    setMMU(mmu: MMU): void {
+    constructor(mmu: MMU, debug: boolean = false) {
+        super("CPU", debug);
         this.mmu = mmu;
     }
+
+    public setMMU(mmu: MMU): void {
+        this.mmu = mmu;
+    }
+
 
     pulse(): void {
         switch (this.step) {
@@ -44,7 +46,6 @@ export class Cpu extends Hardware implements ClockListener {
                 break;
         }  
         this.step = (this.step + 1) % 5; // Move to the next step
-        this.logState(); // Log the current state for debugging 
         }
         
         
@@ -54,19 +55,22 @@ export class Cpu extends Hardware implements ClockListener {
         this.ir = this.mmu.read(this.pc); // Fetch only opcode
         this.pc += 1; // Increment PC by 1 to move past the opcode
     }
+    
 
 
     private decode(): void {
-        this.operand = 0;
-        let operandLength = this.getOperandLength(this.ir) -1;
-        for (let i = 0; i < operandLength; i++) {
-            let byte = this.mmu.read(this.pc);
-            this.operand |= byte << (8 * i);
+        let operandLength = this.getOperandLength(this.ir);
+        if (operandLength > 1) {
+            const lowByte = this.mmu.read(this.pc);
+            const highByte = this.mmu.read(this.pc + 1);
+            this.operand = this.mmu.getAddressFromParts(lowByte, highByte);
+            this.pc += operandLength - 1; // Move PC past the operands
+        } else {
+            this.operand = this.mmu.read(this.pc); // For single byte operands
+            this.pc += operandLength - 1;
+        }
+        this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand}`, 'cpu');
     }
-    this.pc += operandLength; // Move PC past the operands
-    this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand}`, 'cpu');
-
-}
    
     //logs based on type 
     public logState(): void {
@@ -169,6 +173,7 @@ private getOperandLength(opcode: number): number {
                 break;
         }
         this.zFlag = (this.accumulator === 0);
+        this.logState();
     }
     
       
@@ -189,11 +194,15 @@ private getOperandLength(opcode: number): number {
                 this.log("Y register updated with immediate value", 'cpu');
                 break;
             // Add more cases as per your instruction set needs
+            
         }
+
     }
     
 
     private interruptCheck(): void { // Interrput check  MISSING
+        this.logState(); // Log the current state for debugging 
+
 
     }
 

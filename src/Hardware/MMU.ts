@@ -13,7 +13,7 @@ private cpu: Cpu | null = null; // Initialize as null to be set later
     public setCPU(cpu: Cpu): void {
         this.cpu = cpu;
     }
-a
+
     public read(address: number): number {
         return this.memory.read(address);
     }
@@ -40,18 +40,26 @@ a
         this.write(fullAddress, data);
     }
 
-//output 
 
-    
-    // load a static program into memory
-    public writeImmediate(address: number, data: number): void {
-        console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);
-        this.memory.write(address, data);
+    public setLowOrderByte(address: number, lowByte: number): void {
+        let highByte = this.read(address + 1);
+        let fullAddress = (highByte << 8) | lowByte;
+        this.memory.write(address, fullAddress);
     }
-    
+
+    public setHighOrderByte(address: number, highByte: number): void {
+        let lowByte = this.read(address);
+        let fullAddress = (highByte << 8) | lowByte;
+        this.memory.write(address + 1, fullAddress);
+    }
 
 
+ // load a static program into memory
+public writeImmediate(address: number, data: number): void {
+    console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        this.memory.write(address, data);
+}
 
+//memory dump
 public memoryDump(startAddress: number, endAddress: number): void {
     console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Debug`);
     console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
