@@ -15,8 +15,6 @@ export class System extends Hardware {
   constructor(debug: boolean = true) {
     super('System', debug);
 
-
-
 //initializations
     this.memory = new Memory(debug); // memory 
 

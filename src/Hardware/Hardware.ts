@@ -13,12 +13,14 @@ export class Hardware {
   }   
 
 //logs message if debugging is enabled 
-  log(message: string): void {
-    if (this.debug) {
+public log(message: string, type?: 'cpu' | 'memory' | 'clock'): void {
+  if (this.debug) {
       const timestamp = Date.now();
       console.log(`[HW - ${this.name} id: ${this.id} - ${timestamp}]: ${message}`);
     }
   }
+
+
 
 
 public hexLog(address: number, data?: number, addressLength: number = 4, dataLength: number = 2): void {

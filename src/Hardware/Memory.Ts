@@ -29,8 +29,13 @@ export class Memory extends Hardware implements ClockListener {
     }
 
     public write(address: number, data: number): void {
-        this.memory[address] = data;
+        if (address >= 0 && address < this.memory.length) {
+            this.memory[address] = data;
+        } else {
+            console.error("Memory write error: Address out of bounds");
+        }
     }
+    
 
     public displayMemory(startAddress: number, endAddress: number): void {
         this.log(`Displaying memory from address ${startAddress} to ${endAddress}`);
@@ -46,8 +51,8 @@ export class Memory extends Hardware implements ClockListener {
     public hexLog(address: number, data?: number): void {
         const hexAddress = address.toString(16).toUpperCase().padStart(4, '0');
         let message = data !== undefined ? 
-                      `Address: ${hexAddress} contains value: 0x${data.toString(16).toUpperCase().padStart(2, '0')}` : 
-                      `Address: ${hexAddress} contains value: ERR`;
+         `Address: ${hexAddress} contains value: 0x${data.toString(16).toUpperCase().padStart(2, '0')}` : 
+         `Address: ${hexAddress} contains value: ERR`;
         this.log(message);
     }
 }

@@ -1,42 +1,36 @@
-import { Cpu } from "./Hardware/Cpu";
-import { MMU } from "./Hardware/MMU";
-import { Memory } from "./Hardware/Memory";
-class LDATest {
-    run() {
-        // Create a CPU instance
-        const cpu = new Cpu();
+import { Cpu } from './Hardware/Cpu';
+import { MMU } from './Hardware/MMU';
+import { Memory } from './Hardware/Memory';
 
-        // Create an MMU instance
-        const memory = new Memory();
-        const mmu = new MMU(memory);
+// Initialize components
+const memory = new Memory(true); // Assuming 'true' enables debug mode
+const mmu = new MMU(memory);
+const cpu = new Cpu(true);
 
-        // Set the MMU for the CPU
-        cpu.setMMU(mmu);
+// Set MMU for the CPU
+cpu.setMMU(mmu);
 
-        // Toggle logging configurations
-        cpu.toggleClockLog(); // Set at false 
-        cpu.toggleMemoryLog(); // Set at false 
-        cpu.toggleCpuLog(); // Set at true 
+// Define a simple program to test LDA (Load Accumulator)
+const program = [
+    { address: 0x0000, data: 0xA9 }, // LDA Immediate opcode
+    { address: 0x0001, data: 0x42 }, // Load value 0x42 into the accumulator
+    { address: 0x0002, data: 0xA9 }, // LDA Immediate opcode
+    { address: 0x0003, data: 0x85 }, // Load value 0x85 into the accumulator
+    { address: 0x0004, data: 0x00 }  // BRK opcode to stop execution
+];
 
-        // Define test data
-        const testValue = 0x42; // Test value for the LDA Immediate instruction
+// Load the program into memory
+program.forEach(instruction => {
+    mmu.writeImmediate(instruction.address, instruction.data);
+});
 
-        // Initialize memory with the test program and data
-        mmu.write(cpu.pc, 0xA9); // Opcode for LDA Immediate
-        mmu.write(cpu.pc + 1, testValue); // Immediate operand
+// Prepare the CPU for execution
+cpu.reset();
+cpu.setPC(0x0000);
 
-        // Run the CPU pulse to execute the instruction
-        cpu.pulse();
+// Execute the program
+cpu.run();
 
-        // Verify the result
-        if (cpu.accumulator !== testValue) {
-            console.error(`Test failed for LDA Immediate. Expected ${testValue.toString(16)}, got ${cpu.accumulator.toString(16)}.`);
-        } else {
-            console.log(`Test passed for LDA Immediate. Accumulator contains ${testValue.toString(16)}.`);
-        }
-    }
-}
-
-// Run the test
-const ldaTest = new LDATest();
-ldaTest.run();
+// Output the CPU state after execution to verify the results
+console.log(`Final Accumulator Value: 0x${cpu.accumulator.toString(16)}`);
+mmu.memoryDump(0x0000, 0x0002); // Dump memory from 0x0000 to 0x0002
