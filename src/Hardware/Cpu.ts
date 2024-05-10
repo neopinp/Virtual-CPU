@@ -6,7 +6,7 @@ export class Cpu extends Hardware implements ClockListener {
     public pc: number = 0x0000;  // Program Counter
     private ir: number = 0x00;    // Instruction Register
     public accumulator: number = 0x00;
-    private xRegister: number = 0x00;
+    public xRegister: number = 0x00;
     private yRegister: number = 0x00;
     public zFlag: boolean = false;  // Zero flag for status
     public carryFlag: boolean = false; // Carry flag 
@@ -72,23 +72,22 @@ export class Cpu extends Hardware implements ClockListener {
         } else if (operandLength == 1) { // Assuming 1-byte operand
             this.operand = this.mmu.read(this.pc++);
         }
-        this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand.toString(16)}`, 'cpu');
     }
     
     
    
-    //logs based on type 
+    //logs based on type / toggling 
     public logState(): void {
         const zFlagInt = this.zFlag ? 1 : 0; 
         console.log("Attempting to log state...");  // Fallback log 
         if (this.cpuLog) {
-            this.log(`HW-CPU id:0-${Date.now()}],CPU State|PC:${this.pc.toString()} IR:${this.ir.toString(16)} Acc:${this.accumulator.toString(16)} xReg: ${this.xRegister.toString(16)} yReg: ${this.yRegister.toString(16)} zFlag: ${zFlagInt} Step: ${this.step}`, 'cpu');
+            this.log(`HW-CPU id:0-${Date.now()}] CPU State|PC:${this.pc.toString()} IR:${this.ir.toString(16)} Acc:${this.accumulator.toString(16)} xReg: ${this.xRegister.toString(16)} yReg: ${this.yRegister.toString(16)} zFlag: ${zFlagInt} Step: ${this.step}`, 'cpu');
         }
         if (this.memoryLog) { 
             this.log(`[HW - MMU id: 0 - ${Date.now()}]`,'memory');
         }
         if (this.clockLog) {
-            this.log(`asd`, 'clock');
+            this.log(`Clock`, 'clock');
         }
     } 
     
@@ -119,12 +118,12 @@ private getOperandLength(opcode: number): number {
             case 0xA9: // LDA Immediate
                 this.accumulator = this.operand;
                 this.zFlag = (this.accumulator === 0);
-                this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu');
+              // debugging  this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu'); 
                 break;
             case 0xAD: // LDA load from memory
                 this.accumulator = this.mmu.read(this.operand);
                 this.updateFlags();
-                this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu');
+             //debugging   this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu');
                 break;
             case 0x8D: // STA Absolute
                 this.mmu.write(this.operand, this.accumulator);
@@ -189,13 +188,14 @@ private getOperandLength(opcode: number): number {
             case 0x00: // BRK
                 break;
             case 0xFF: // SYS
-                this.handleSysCall();
+                this.handleSysCallWriteBack();
                 break;
             default:
                 break;
         }
         this.logState();
     }
+    
     private adc(address: number): void { // Add with carry
         const memoryValue = this.mmu.read(address);
         let sum = this.accumulator + memoryValue + (this.carryFlag ? 1 : 0);
@@ -227,27 +227,31 @@ private getOperandLength(opcode: number): number {
                 this.yRegister = this.operand;
                 this.log("Y register updated with immediate value", 'cpu');
                 break;
-            // Add more cases as per your instruction set needs
+            case 0xFF:
+            this.handleSysCallWriteBack();
+            break;
+
         }
     }
     
 
-    private interruptCheck(): void { // Interrput check  MISSING
+    private interruptCheck(): void { 
 
     }
 
 
-    private handleSysCall(): void {
-        // System call implementation based on SYS instruction
-        switch (this.operand) {
-            case 1: // Print integer
+    private handleSysCallWriteBack(): void { //SYS call
+        console.log(`Handling SYS call with xRegister: ${this.xRegister}`);
+        switch (this.xRegister) {
+            case 0x01: // Print integer from xRegister
                 console.log(`Print integer: ${this.yRegister}`);
                 break;
-            case 2: // Print string from memory
+            case 0x02: // Print string from memory 
+            console.log(`Print string from address: ${this.yRegister}`);
                 this.printStringFromMemory(this.yRegister);
                 break;
-            case 3: // Custom operation
-                // Additional operations based on your design
+            case 0x03:// Print 0x00 from the operand 
+                this.printStringFromMemory(this.operand);
                 break;
         }
     }
@@ -255,12 +259,12 @@ private getOperandLength(opcode: number): number {
     private printStringFromMemory(address: number): void {
         let result = '';
         let character = this.mmu.read(address);
-        while (character != 0) {
+        while (character !== 0x00) {
             result += String.fromCharCode(character);
             address++;
             character = this.mmu.read(address);
         }
-        console.log(result);
+        console.log(`Print string: ${result}`);
     }
   
     
