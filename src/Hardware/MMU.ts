@@ -14,12 +14,15 @@ export class MMU {
         this.cpu = cpu;
     }
 
+    // read method 
+
     public read(address: number): number {
         const value = this.memory.read(address);
         console.log(`MMU read: Address ${address.toString(16)} = ${value.toString(16)}`);
         return value;
     }
 
+    // write method 
     public write(address: number, data: number): void {
         console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
         this.memory.write(address, data);
@@ -29,6 +32,7 @@ export class MMU {
         return (highByte << 8) | lowByte;
     }
 
+    //indirect addressing 
     public readIndirect(address: number): number {
         const lowByte = this.read(address);
         const highByte = this.read(address + 1);
@@ -46,7 +50,7 @@ export class MMU {
     public setLowOrderByte(address: number, lowByte: number): void {
         this.write(address, lowByte);
     }
-
+//get address in two parts 
     public setHighOrderByte(address: number, highByte: number): void {
         this.write(address + 1, highByte);
     }
@@ -56,6 +60,8 @@ export class MMU {
         this.write(address, data);
     }
 
+
+    // dump memory contents 
     public memoryDump(startAddress: number, endAddress: number): void {
         console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Debug`);
         console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
