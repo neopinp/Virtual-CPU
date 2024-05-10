@@ -15,12 +15,19 @@ private cpu: Cpu | null = null; // Initialize as null to be set later
     }
 
     public read(address: number): number {
-        return this.memory.read(address);
+        const value = this.memory.read(address);
+        console.log(`MMU read: Address ${address.toString(16)} = ${value.toString(16)}`);
+        return value;
     }
 
     public write(address: number, data: number): void {
-        this.memory.write(address, data);
+    if (address === undefined) {
+        throw new Error('Address is undefined');
     }
+    console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
+    this.memory.write(address, data);
+}
+
 
     public getAddressFromParts(lowByte: number, highByte: number): number {
         return (highByte << 8) | lowByte;
@@ -56,7 +63,8 @@ private cpu: Cpu | null = null; // Initialize as null to be set later
 
  // load a static program into memory
 public writeImmediate(address: number, data: number): void {
-    console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        this.memory.write(address, data);
+    console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        
+    this.memory.write(address, data);
 }
 
 //memory dump

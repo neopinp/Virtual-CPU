@@ -8,12 +8,12 @@ export class Cpu extends Hardware implements ClockListener {
     public accumulator: number = 0x00;
     private xRegister: number = 0x00;
     private yRegister: number = 0x00;
-    private zFlag: boolean = false;  // Zero flag for status
-    private operand: number = 0x0000; // Store operand
-    private step: number = 0; // Current step in the pipeline
-    private carryFlag: boolean = false; // Carry flag 
-    private mmu: MMU;
-    public debug: boolean;
+    public zFlag: boolean = false;  // Zero flag for status
+    public operand: number = 0x0000; // Store operand
+    public step: number = 0; // Current step in the pipeline
+    public carryFlag: boolean = false; // Carry flag 
+    public mmu: MMU;
+    carry: boolean = false; // Carry flag
     // toggle logging 
     private clockLog: boolean = false;
     private memoryLog: boolean = false;
@@ -23,14 +23,13 @@ export class Cpu extends Hardware implements ClockListener {
     
 
     constructor(mmu: MMU, debug: boolean = false) {
-        super("CPU", debug);
+        super('CPU', debug);
+        this.mmu = mmu;
+        this.debug = debug;
+    }
+    setMMU(mmu: MMU): void {
         this.mmu = mmu;
     }
-
-    public setMMU(mmu: MMU): void {
-        this.mmu = mmu;
-    }
-
 
     pulse(): void {
         switch (this.step) {
@@ -46,6 +45,7 @@ export class Cpu extends Hardware implements ClockListener {
                 break;
         }  
         this.step = (this.step + 1) % 5; // Move to the next step
+        this.logState(); // Log the current state for debugging 
         }
         
         
@@ -55,22 +55,19 @@ export class Cpu extends Hardware implements ClockListener {
         this.ir = this.mmu.read(this.pc); // Fetch only opcode
         this.pc += 1; // Increment PC by 1 to move past the opcode
     }
-    
 
 
     private decode(): void {
-        let operandLength = this.getOperandLength(this.ir);
-        if (operandLength > 1) {
-            const lowByte = this.mmu.read(this.pc);
-            const highByte = this.mmu.read(this.pc + 1);
-            this.operand = this.mmu.getAddressFromParts(lowByte, highByte);
-            this.pc += operandLength - 1; // Move PC past the operands
-        } else {
-            this.operand = this.mmu.read(this.pc); // For single byte operands
-            this.pc += operandLength - 1;
-        }
-        this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand}`, 'cpu');
+        this.operand = 0;
+        let operandLength = this.getOperandLength(this.ir) -1;
+        for (let i = 0; i < operandLength; i++) {
+            let byte = this.mmu.read(this.pc);
+            this.operand |= byte << (8 * i);
     }
+    this.pc += operandLength; // Move PC past the operands
+    this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand}`, 'cpu');
+
+}
    
     //logs based on type 
     public logState(): void {
@@ -107,7 +104,7 @@ private getOperandLength(opcode: number): number {
             return 1; // Only Opcode
     }
 }
-    private execute(): void {
+    public execute(): void {
         switch (this.ir) {
             case 0xA9: // LDA Immediate
                 this.accumulator = this.operand;
@@ -173,10 +170,10 @@ private getOperandLength(opcode: number): number {
                 break;
         }
         this.zFlag = (this.accumulator === 0);
-        this.logState();
     }
-    
-      
+
+
+
     private writeBack(): void {
         switch (this.ir) {
             case 0x8D: // STA Absolute
@@ -194,15 +191,11 @@ private getOperandLength(opcode: number): number {
                 this.log("Y register updated with immediate value", 'cpu');
                 break;
             // Add more cases as per your instruction set needs
-            
         }
-
     }
     
 
     private interruptCheck(): void { // Interrput check  MISSING
-        this.logState(); // Log the current state for debugging 
-
 
     }
 
@@ -250,15 +243,6 @@ private getOperandLength(opcode: number): number {
     }
 
 
-
-
-
-
-
-
-
-
-
     public reset(): void {
         this.pc = 0x0000;  // Reset program counter to start position
         this.accumulator = 0x00;  // Reset accumulator
@@ -298,5 +282,4 @@ private getOperandLength(opcode: number): number {
         this.mmu.write(address, data);
     }
 }
-
 

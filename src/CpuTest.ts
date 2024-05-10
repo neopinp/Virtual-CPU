@@ -1,36 +1,29 @@
-import { Cpu } from './Hardware/Cpu';
-import { MMU } from './Hardware/MMU';
-import { Memory } from './Hardware/Memory';
-
-// Initialize components
-const memory = new Memory(true); // Assuming 'true' enables debug mode
+import { Memory } from "./Hardware/Memory"; // Import Memory if it's a separate class
+import { MMU } from "./Hardware/MMU";
+import { Cpu } from "./Hardware/Cpu"; // Ensure all imports match your file structure
+const memory = new Memory(); // Instantiate Memory with default size
 const mmu = new MMU(memory);
-const cpu = new Cpu(true);
+const cpu = new Cpu(mmu, true); // Enable debugging
 
-// Set MMU for the CPU
-cpu.setMMU(mmu);
 
-// Define a simple program to test LDA (Load Accumulator)
-const program = [
-    { address: 0x0000, data: 0xA9 }, // LDA Immediate opcode
-    { address: 0x0001, data: 0x42 }, // Load value 0x42 into the accumulator
-    { address: 0x0002, data: 0xA9 }, // LDA Immediate opcode
-    { address: 0x0003, data: 0x85 }, // Load value 0x85 into the accumulator
-    { address: 0x0004, data: 0x00 }  // BRK opcode to stop execution
-];
+/*ADC 
+const startAddress = 0x0100;
+memory.write(startAddress, 0x6D); // ADC opcode
+memory.write(startAddress + 1, 0x01); // Operand address low byte
+memory.write(startAddress + 2, 0x00); // Operand address high byte (forming 0x0001)
+*/
 
-// Load the program into memory
-program.forEach(instruction => {
-    mmu.writeImmediate(instruction.address, instruction.data);
-});
 
-// Prepare the CPU for execution
+
+
+// Value to be added
+memory.write(0x0001, 0x05);
+
+// Prepare CPU and execute
 cpu.reset();
-cpu.setPC(0x0000);
+cpu.accumulator = 0x03; // Set initial accumulator value
+mmu.writeImmediate(0x6D, 0x0005); // Execute ADC at address 0x0001
 
-// Execute the program
-cpu.run();
-
-// Output the CPU state after execution to verify the results
-console.log(`Final Accumulator Value: 0x${cpu.accumulator.toString(16)}`);
-mmu.memoryDump(0x0000, 0x0002); // Dump memory from 0x0000 to 0x0002
+// Log final state
+console.log(`Final State: Accumulator = 0x${cpu.accumulator.toString(16)}, Carry = ${cpu.carry}`);
+mmu.memoryDump(0x0000, 0x0010); // Dump memory from 0x0000 to 0x0002

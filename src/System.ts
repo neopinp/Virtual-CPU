@@ -11,6 +11,7 @@ export class System extends Hardware {
   private clock: Clock;
   public mmu: MMU;
   public running: boolean = false;
+  
 
   constructor(debug: boolean = true) {
     super('System', debug);
