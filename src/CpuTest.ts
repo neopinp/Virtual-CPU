@@ -97,12 +97,13 @@ const program = [
     { address: 0x0000, data: 0xA9 }, // LDA Immediate opcode
     { address: 0x0001, data: 0x01 }, // Value to load into the accumulator
     { address: 0x0002, data: 0xD0 }, // BNE opcode
-    { address: 0x0003, data: 0x02 }, // Relative address to branch to if zero flag is clear
-    { address: 0x0005, data: 0x00 }  // BRK opcode to stop execution
+    { address: 0x0003, data: 0x01 }, // Relative address to branch to if zero flag is clear
+    { address: 0x0004, data: 0x00 } // BRK opcode to stop execution
 ];
 program.forEach(({ address, data }) => {
     mmu.writeImmediate(address, data);
 });
+
 cpu.setPC(0x0000);
 cpu.run();
 
