@@ -79,7 +79,7 @@ const program = [
     { address: 0x0003, data: 0x00 }, // BRK opcode to stop execution
     { address: 0x0005, data: 0x07 }  // Value to load into the Y register
 ];
-TESTING TAY 
+TESTING A8 
 const program = [
     { address: 0x0000, data: 0xA9 }, // LDA Immediate opcode
     { address: 0x0001, data: 0x07 }, // Value to load into the accumulator
@@ -87,11 +87,13 @@ const program = [
     { address: 0x0003, data: 0x00 }  // BRK opcode to stop execution
 ];
 *
-TESTING NOP
+TESTING EA
 const program = [
     { address: 0x0000, data: 0xEA }, // NOP opcode
     { address: 0x0001, data: 0x00 }  // BRK opcode to stop execution
 ];
+
+TESTING D0
 */
 const program = [
     { address: 0x0000, data: 0xA9 }, // LDA Immediate opcode

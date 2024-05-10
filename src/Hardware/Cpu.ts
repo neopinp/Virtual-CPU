@@ -10,6 +10,7 @@ export class Cpu extends Hardware implements ClockListener {
     private yRegister: number = 0x00;
     public zFlag: boolean = false;  // Zero flag for status
     public carryFlag: boolean = false; // Carry flag 
+    public nFlag: boolean = false;  // Negative flag
     public operand: number = 0x0000; // Store operand
     public step: number = 0; // Current step in the pipeline
     public mmu: MMU;
@@ -30,6 +31,7 @@ export class Cpu extends Hardware implements ClockListener {
     private updateFlags(): void {
         this.zFlag = (this.accumulator === 0);
         this.carryFlag = (this.accumulator > 0xFF);
+        this.nFlag = ((this.accumulator & 0x80) !== 0);
         if (this.carryFlag) {
             this.accumulator &= 0xFF;
         }
@@ -162,12 +164,19 @@ private getOperandLength(opcode: number): number {
                 this.accumulator = result & 0xFF;
                 this.zFlag = (this.accumulator === 0);
                 break;
+            case 0xEC: // CPX Absolute
+                value = this.mmu.read(this.operand);
+                result = this.xRegister - value;
+                this.carryFlag = (this.xRegister >= value);
+                this.zFlag = (result === 0);
+                this.carryFlag = ((result & 0x80) !== 0);
+                break;
             case 0xD0: // BNE
                 if (!this.zFlag) {
-                    this.pc = this.signed(this.operand);  // Branch to the new address
-                }else {
-                    this.pc++; // Move to the next instruction
-                }
+                this.pc += this.signed(this.operand); // Correct branch calculation
+            } else {
+                this.pc++; // Move to the next instruction if not branching
+            }
                 break;
             case 0xEE: // INC Absolute
                 let memValue = (this.mmu.read(this.operand) + 1) & 0xFF;
