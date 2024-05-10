@@ -16,9 +16,9 @@ export class Cpu extends Hardware implements ClockListener {
     public mmu: MMU;
     carry: boolean = false; // Carry flag
     // toggle logging 
-    private clockLog: boolean = false;
-    private memoryLog: boolean = false;
-    private cpuLog: boolean = true;
+    private clockLog: boolean = false; //toggle
+    private memoryLog: boolean = false; //toggle
+    private cpuLog: boolean = false; // toggle
 
     constructor(debug: boolean = true) {
         super('Cpu', debug);
@@ -79,7 +79,7 @@ export class Cpu extends Hardware implements ClockListener {
     //logs based on type / toggling 
     public logState(): void {
         const zFlagInt = this.zFlag ? 1 : 0; 
-        console.log("Attempting to log state...");  // Fallback log 
+        //logging console.log("Attempting to log state...");  // Fallback log 
         if (this.cpuLog) {
             this.log(`HW-CPU id:0-${Date.now()}] CPU State|PC:${this.pc.toString()} IR:${this.ir.toString(16)} Acc:${this.accumulator.toString(16)} xReg: ${this.xRegister.toString(16)} yReg: ${this.yRegister.toString(16)} zFlag: ${zFlagInt} Step: ${this.step}`, 'cpu');
         }
@@ -297,7 +297,7 @@ private getOperandLength(opcode: number): number {
     }
     public setPC(address: number): void {
         this.pc = address;
-        console.log(`Program counter set to address: 0x${address.toString(16)}`);
+        // more logging for debugging console.log(`Program counter set to address: 0x${address.toString(16)}`);
     }
     public run(): void {
         if (!this.mmu) {
@@ -306,10 +306,10 @@ private getOperandLength(opcode: number): number {
         }
         try {
             while (true) {
-                console.log("Running CPU pulse");
+                //logging console.log("Running CPU pulse");
                 this.pulse();  // Assuming pulse handles one cycle of fetch-decode-execute
                 if (this.ir === 0x00) {  // Check for BRK instruction
-                    console.log("BRK - Halt.");
+                    // More logging for debugging console.log("BRK - Halt.");
                     break;
                 }
             }

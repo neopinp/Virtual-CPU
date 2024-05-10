@@ -18,13 +18,13 @@ export class MMU {
 
     public read(address: number): number {
         const value = this.memory.read(address);
-        console.log(`MMU read: Address ${address.toString(16)} = ${value.toString(16)}`);
+        //logging console.log(`MMU read: Address ${address.toString(16)} = ${value.toString(16)}`);
         return value;
     }
 
     // write method 
     public write(address: number, data: number): void {
-        console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
+        //logging console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
         this.memory.write(address, data);
     }
 
@@ -56,7 +56,7 @@ export class MMU {
     }
 
     public writeImmediate(address: number, data: number): void {
-        console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        
+        // logging console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        
         this.write(address, data);
     }
 
