@@ -9,9 +9,9 @@ export class Cpu extends Hardware implements ClockListener {
     private xRegister: number = 0x00;
     private yRegister: number = 0x00;
     public zFlag: boolean = false;  // Zero flag for status
+    public carryFlag: boolean = false; // Carry flag 
     public operand: number = 0x0000; // Store operand
     public step: number = 0; // Current step in the pipeline
-    public carryFlag: boolean = false; // Carry flag 
     public mmu: MMU;
     carry: boolean = false; // Carry flag
     // toggle logging 
@@ -19,16 +19,20 @@ export class Cpu extends Hardware implements ClockListener {
     private memoryLog: boolean = false;
     private cpuLog: boolean = true;
 
-
-    
-
-    constructor(mmu: MMU, debug: boolean = false) {
-        super('CPU', debug);
-        this.mmu = mmu;
-        this.debug = debug;
+    constructor(debug: boolean = true) {
+        super('Cpu', debug);
+        this.log('CPU created', 'cpu');
     }
-    setMMU(mmu: MMU): void {
+
+    setMMU(mmu: MMU) {
         this.mmu = mmu;
+    }
+    private updateFlags(): void {
+        this.zFlag = (this.accumulator === 0);
+        this.carryFlag = (this.accumulator > 0xFF);
+        if (this.carryFlag) {
+            this.accumulator &= 0xFF;
+        }
     }
 
     pulse(): void {
@@ -50,28 +54,31 @@ export class Cpu extends Hardware implements ClockListener {
         
         
     
-    private fetch(): void {
+ private fetch(): void {
         if (!this.mmu) throw new Error("MMU not set.");
-        this.ir = this.mmu.read(this.pc); // Fetch only opcode
-        this.pc += 1; // Increment PC by 1 to move past the opcode
+        this.ir = this.mmu.read(this.pc++);
+        this.log(`Fetched IR: ${this.ir.toString(16)}`, 'cpu');
     }
-
 
     private decode(): void {
+        let operandLength = this.getOperandLength(this.ir);
         this.operand = 0;
-        let operandLength = this.getOperandLength(this.ir) -1;
-        for (let i = 0; i < operandLength; i++) {
-            let byte = this.mmu.read(this.pc);
-            this.operand |= byte << (8 * i);
+        if (operandLength == 2) { // Assuming 2-byte operand
+            let lowByte = this.mmu.read(this.pc++);
+            let highByte = this.mmu.read(this.pc++);
+            this.operand = (highByte << 8) | lowByte;
+        } else if (operandLength == 1) { // Assuming 1-byte operand
+            this.operand = this.mmu.read(this.pc++);
+        }
+        this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand.toString(16)}`, 'cpu');
     }
-    this.pc += operandLength; // Move PC past the operands
-    this.log(`Decoded IR: ${this.ir.toString(16).toUpperCase()} with operand: ${this.operand}`, 'cpu');
-
-}
+    
+    
    
     //logs based on type 
     public logState(): void {
-        const zFlagInt = this.zFlag ? 1 : 0;  
+        const zFlagInt = this.zFlag ? 1 : 0; 
+        console.log("Attempting to log state...");  // Fallback log 
         if (this.cpuLog) {
             this.log(`HW-CPU id:0-${Date.now()}],CPU State|PC:${this.pc.toString()} IR:${this.ir.toString(16)} Acc:${this.accumulator.toString(16)} xReg: ${this.xRegister.toString(16)} yReg: ${this.yRegister.toString(16)} zFlag: ${zFlagInt} Step: ${this.step}`, 'cpu');
         }
@@ -95,13 +102,14 @@ private getOperandLength(opcode: number): number {
         case 0xEE: // INC Absolute
         case 0xD0: // BNE
         case 0xFF: // SYS
-            return 2; // Opcode + Operand
+            return 1; // Operand
         case 0xAD: // LDA Absolute
         case 0xAE: // LDX Absolute
         case 0xAC: // LDY Absolute
-            return 3; // Opcode + Operand (2 bytes)
-        default:
-            return 1; // Only Opcode
+            return 2; // 
+        case 0x98:
+            default:
+            return 0; // Only Opcode
     }
 }
     public execute(): void {
@@ -111,13 +119,20 @@ private getOperandLength(opcode: number): number {
                 this.zFlag = (this.accumulator === 0);
                 this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu');
                 break;
-            case 0xAD: // LDA Absolute
+            case 0xAD: // LDA load from memory
                 this.accumulator = this.mmu.read(this.operand);
-                this.zFlag = (this.accumulator === 0);
+                this.updateFlags();
+                this.log(`LDA executed. Accumulator now: ${this.accumulator}`, 'cpu');
                 break;
             case 0x8D: // STA Absolute
                 this.mmu.write(this.operand, this.accumulator);
                 break;
+            case 0x98:
+                this.accumulator = this.yRegister;
+                this.zFlag = (this.accumulator === 0);
+                break;
+            case 0x6D:
+                this.adc(this.operand);
             case 0xA2: // LDX Immediate
                 this.xRegister = this.operand;
                 this.zFlag = (this.xRegister === 0);
@@ -140,7 +155,7 @@ private getOperandLength(opcode: number): number {
             case 0x8C: // STY Absolute
                 this.mmu.write(this.operand, this.yRegister);
                 break;
-            case 0x6D: // ADC Absolute
+            case 0x69: // ADC Absolute
                 let value = this.mmu.read(this.operand);
                 let result = this.accumulator + value + (this.carryFlag ? 1 : 0);
                 this.carryFlag = result > 0xFF;
@@ -149,7 +164,9 @@ private getOperandLength(opcode: number): number {
                 break;
             case 0xD0: // BNE
                 if (!this.zFlag) {
-                    this.pc = this.operand;  // Branch to the new address
+                    this.pc = this.signed(this.operand);  // Branch to the new address
+                }else {
+                    this.pc++; // Move to the next instruction
                 }
                 break;
             case 0xEE: // INC Absolute
@@ -158,10 +175,9 @@ private getOperandLength(opcode: number): number {
                 this.zFlag = (memValue === 0);
                 break;
             case 0xEA: // NOP
-                // No operation performed
+                this.pc++; // no operation 
                 break;
             case 0x00: // BRK
-                // Simulate breakpoint/interrupt handling
                 break;
             case 0xFF: // SYS
                 this.handleSysCall();
@@ -169,9 +185,21 @@ private getOperandLength(opcode: number): number {
             default:
                 break;
         }
-        this.zFlag = (this.accumulator === 0);
+        this.logState();
     }
-
+    private adc(address: number): void { // Add with carry
+        const memoryValue = this.mmu.read(address);
+        let sum = this.accumulator + memoryValue + (this.carryFlag ? 1 : 0);
+        this.carryFlag = sum > 0xFF; 
+        this.accumulator = sum & 0xFF; 
+        this.zFlag = (this.accumulator === 0);
+        this.log(`ADC executed at address ${address.toString(16)}: MemValue=${memoryValue.toString(16)}, Result=${this.accumulator.toString(16)}, Carry=${this.carryFlag}`, 'cpu');
+    }
+    private signed(value: number): number {  // Convert to signed value
+        const sign = value & 0x80 ? -1 : 1;
+        const absValue = value & 0x7F;
+        return sign * absValue;
+    }
 
 
     private writeBack(): void {
@@ -259,8 +287,13 @@ private getOperandLength(opcode: number): number {
         console.log(`Program counter set to address: 0x${address.toString(16)}`);
     }
     public run(): void {
+        if (!this.mmu) {
+            console.log("MMU not initialized.");
+            return;
+        }
         try {
             while (true) {
+                console.log("Running CPU pulse");
                 this.pulse();  // Assuming pulse handles one cycle of fetch-decode-execute
                 if (this.ir === 0x00) {  // Check for BRK instruction
                     console.log("BRK - Halt.");
@@ -282,4 +315,3 @@ private getOperandLength(opcode: number): number {
         this.mmu.write(address, data);
     }
 }
-

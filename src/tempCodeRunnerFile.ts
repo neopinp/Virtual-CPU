@@ -1,1 +1,1 @@
-cpu.setMMU(mmu);
+cpu.reset();

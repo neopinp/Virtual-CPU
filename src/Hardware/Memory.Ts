@@ -5,6 +5,7 @@ export class Memory extends Hardware implements ClockListener {
     private memory: Uint8Array;
     private mar: number = 0x0000; 
     private mdr: number = 0x00;   
+    static Memory: any;
 
     constructor(debug: boolean = true) {
         super("Memory", debug);

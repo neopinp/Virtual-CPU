@@ -3,8 +3,8 @@ import { Memory } from "./Memory";
 import { Cpu } from "./Cpu";
 
 export class MMU {
-private memory: Memory;
-private cpu: Cpu | null = null; // Initialize as null to be set later
+    private memory: Memory;
+    private cpu: Cpu | null = null; // Initialize as null to be set later
 
     constructor(memory: Memory) {
         this.memory = memory;
@@ -21,13 +21,9 @@ private cpu: Cpu | null = null; // Initialize as null to be set later
     }
 
     public write(address: number, data: number): void {
-    if (address === undefined) {
-        throw new Error('Address is undefined');
+        console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
+        this.memory.write(address, data);
     }
-    console.log(`MMU write: Address ${address.toString(16)} = ${data.toString(16)}`);
-    this.memory.write(address, data);
-}
-
 
     public getAddressFromParts(lowByte: number, highByte: number): number {
         return (highByte << 8) | lowByte;
@@ -47,37 +43,27 @@ private cpu: Cpu | null = null; // Initialize as null to be set later
         this.write(fullAddress, data);
     }
 
-
     public setLowOrderByte(address: number, lowByte: number): void {
-        let highByte = this.read(address + 1);
-        let fullAddress = (highByte << 8) | lowByte;
-        this.memory.write(address, fullAddress);
+        this.write(address, lowByte);
     }
 
     public setHighOrderByte(address: number, highByte: number): void {
-        let lowByte = this.read(address);
-        let fullAddress = (highByte << 8) | lowByte;
-        this.memory.write(address + 1, fullAddress);
+        this.write(address + 1, highByte);
     }
 
-
- // load a static program into memory
-public writeImmediate(address: number, data: number): void {
-    console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        
-    this.memory.write(address, data);
-}
-
-//memory dump
-public memoryDump(startAddress: number, endAddress: number): void {
-    console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Debug`);
-    console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
-    for (let address = startAddress; address <= endAddress; address++) {
-        const data = this.read(address);
-        console.log(`[HW - MMU id: 0 - ${Date.now()}]: Addr ${address.toString(16).padStart(4, '0')}: | ${data.toString(16).toUpperCase()}`);
+    public writeImmediate(address: number, data: number): void {
+        console.log(`Writing to address ${address.toString(16)}: ${data.toString(16)}`);        
+        this.write(address, data);
     }
-    console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
-    console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Complete`); 
+
+    public memoryDump(startAddress: number, endAddress: number): void {
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Debug`);
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
+        for (let address = startAddress; address <= endAddress; address++) {
+            const data = this.read(address);
+            console.log(`[HW - MMU id: 0 - ${Date.now()}]: Addr ${address.toString(16).padStart(4, '0')}: | ${data.toString(16).toUpperCase()}`);
+        }
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: --------------------------------------`);
+        console.log(`[HW - MMU id: 0 - ${Date.now()}]: Memory Dump: Complete`); 
     }
 }
-
-
