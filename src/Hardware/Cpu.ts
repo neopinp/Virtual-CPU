@@ -1,3 +1,4 @@
+import Ascii from "./ASCII";
 import { Hardware } from "./Hardware";
 import { ClockListener } from "./Imp/ClockListener";
 import { InterruptController } from "./InterruptController";
@@ -44,7 +45,9 @@ export class Cpu extends Hardware implements ClockListener {
     }
 
     pulse(): void {
+        
         if (this.checkAndHandleInterrupts()) {
+            
             return;  // If an interrupt is handled, skip the current cycle
         }
             switch (this.step) {
@@ -263,7 +266,7 @@ private getOperandLength(opcode: number): number {
 
 
     private handleSysCallWriteBack(): void { //SYS call
-        console.log(`Handling SYS call with xRegister: ${this.xRegister}`);
+        //logging console.log(`Handling SYS call with xRegister: ${this.xRegister}`);
         switch (this.xRegister) {
             case 0x01: // Print integer from xRegister
                 console.log(`Print integer: ${this.yRegister}`);
@@ -282,7 +285,7 @@ private getOperandLength(opcode: number): number {
         let result = '';
         let character = this.mmu.read(address);
         while (character !== 0x00) {
-            result += String.fromCharCode(character);
+            result += Ascii.byteToChar(character);
             address++;
             character = this.mmu.read(address);
         }

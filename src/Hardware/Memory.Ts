@@ -1,3 +1,4 @@
+import Ascii from "./ASCII";
 import { Hardware } from "./Hardware"; 
 import { ClockListener } from "./Imp/ClockListener";
 
@@ -42,7 +43,9 @@ export class Memory extends Hardware implements ClockListener {
         this.log(`Displaying memory from address ${startAddress} to ${endAddress}`);
         for (let address = startAddress; address <= endAddress; address++) {
             if (address < this.memory.length) {
-                this.hexLog(address, this.memory[address]);
+                const data = this.memory[address];
+                const charRepresentation = Ascii.byteToChar(data);  // Convert byte to ASCII character
+                this.hexAndCharLog(address, data, charRepresentation);  // Log both hex and character representation
             } else {
                 this.log(`Address 0x${address.toString(16).toUpperCase()}: Out of bounds`);
             }
@@ -54,6 +57,15 @@ export class Memory extends Hardware implements ClockListener {
         let message = data !== undefined ? 
          `Address: ${hexAddress} contains value: 0x${data.toString(16).toUpperCase().padStart(2, '0')}` : 
          `Address: ${hexAddress} contains value: ERR`;
+        this.log(message);
+    }
+
+
+    public hexAndCharLog(address: number, data: number, char: string): void {
+        const hexAddress = address.toString(16).toUpperCase().padStart(4, '0');
+        const hexData = data.toString(16).toUpperCase().padStart(2, '0');
+        const displayChar = char.replace(/[\x00-\x1F]/g, '.'); // Replace non-printable characters with '.'
+        let message = `Address: ${hexAddress} | Data: ${hexData} ('${displayChar}')`;
         this.log(message);
     }
 }
