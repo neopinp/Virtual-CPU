@@ -11,7 +11,7 @@
 
   "include": [
       "src/**/*"
-, "src/System.ts"  ],
+, "src/System.ts", "resources/buffer.ts"  ],
   "exclude": [
     "./node_modules"
   ]

@@ -1,16 +1,21 @@
 // System.ts
 import { Cpu } from "./Hardware/Cpu";
-import { Memory } from "./Hardware/Memory";
 import { Clock } from "./Hardware/Clock";
 import { Hardware } from "./Hardware/Hardware";
 import { MMU } from "./Hardware/MMU";
+import { InterruptController } from "./Hardware/InterruptController";
+import { Keyboard } from "./Keyboard";
+import { Memory } from "./Hardware/Memory";
+
 
 export class System extends Hardware {
-  private cpu: Cpu;
+  private cpu: Cpu; 
   private memory: Memory;
   private clock: Clock;
   public mmu: MMU;
   public running: boolean = false;
+  private interruptController: InterruptController;
+  private keyboard: Keyboard;
   
 
   constructor(debug: boolean = true) {
@@ -18,18 +23,21 @@ export class System extends Hardware {
 
 //initializations
     this.memory = new Memory(debug); // memory 
+    this.interruptController = new InterruptController(debug);
+    this.keyboard = new Keyboard(debug, this.interruptController); // initalizes keyboard with interrupt controller instance
+    this.cpu = new Cpu(debug); // initalizes CPU without an MMU instance 
+    this.cpu.setInterruptController(this.interruptController);
 
-    this.mmu = new MMU(this.memory); // initalizes MMU with Memory instance
+        this.mmu = new MMU(this.memory); // initalizes MMU with Memory instance
 
-   
-    this.cpu = new Cpu(null); // initalizes CPU without an MMU instance 
-    
     this.cpu.setMMU(this.mmu);  // sets MMU instance in CPU
     this.mmu.setCPU(this.cpu); // sets CPU instance in MMU
 
     this.clock = new Clock(debug); //initalize clock 
     this.clock.registerListener(this.cpu); //register cpu as listener 
     this.clock.registerListener(this.memory); //register memeory as listener 
+
+    this.interruptController.registerDevice(this.keyboard);
 
     this.log('created');
   }

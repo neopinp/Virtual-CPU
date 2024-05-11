@@ -1,5 +1,6 @@
 import { Hardware } from "./Hardware";
 import { ClockListener } from "./Imp/ClockListener";
+import { InterruptController } from "./InterruptController";
 import { MMU } from "./MMU";
 
 export class Cpu extends Hardware implements ClockListener {
@@ -16,9 +17,11 @@ export class Cpu extends Hardware implements ClockListener {
     public mmu: MMU;
     carry: boolean = false; // Carry flag
     // toggle logging 
-    private clockLog: boolean = false; //toggle
-    private memoryLog: boolean = false; //toggle
+    private clockLog: boolean = true; //toggle
+    private memoryLog: boolean = true; //toggle
     private cpuLog: boolean = false; // toggle
+    private interruptController: InterruptController;
+
 
     constructor(debug: boolean = true) {
         super('Cpu', debug);
@@ -36,9 +39,15 @@ export class Cpu extends Hardware implements ClockListener {
             this.accumulator &= 0xFF;
         }
     }
+    setInterruptController(controller: InterruptController): void {
+        this.interruptController = controller;
+    }
 
     pulse(): void {
-        switch (this.step) {
+        if (this.checkAndHandleInterrupts()) {
+            return;  // If an interrupt is handled, skip the current cycle
+        }
+            switch (this.step) {
             case 0: this.fetch(); 
                 break;
             case 1: this.decode(); 
@@ -52,15 +61,24 @@ export class Cpu extends Hardware implements ClockListener {
         }  
         this.step = (this.step + 1) % 5; // Move to the next step
         this.logState(); // Log the current state for debugging 
+    }
+
+    
+        private checkAndHandleInterrupts(): boolean {
+            const interruptDevice = this.interruptController.getHighestPriorityInterrupt();
+            if (interruptDevice) {
+                this.log(`Interrupt handled by CPU from device: ${interruptDevice.name}`, 'cpu'); // Add the missing second argument 'cpu'
+                // Handle the interrupt specific tasks
+                return true;
+            }
+            return false;
         }
         
-        
-    
- private fetch(): void {
-        if (!this.mmu) throw new Error("MMU not set.");
-        this.ir = this.mmu.read(this.pc++);
-        this.log(`Fetched IR: ${this.ir.toString(16)}`, 'cpu');
-    }
+     private fetch(): void {
+            if (!this.mmu) throw new Error("MMU not set.");
+            this.ir = this.mmu.read(this.pc++);
+            this.log(`Fetched IR: ${this.ir.toString(16)}`, 'cpu'); // Add the missing second argument 'cpu'
+        }
 
     private decode(): void {
         let operandLength = this.getOperandLength(this.ir);
@@ -233,11 +251,15 @@ private getOperandLength(opcode: number): number {
 
         }
     }
+
+
+
     
 
     private interruptCheck(): void { 
-
     }
+
+
 
 
     private handleSysCallWriteBack(): void { //SYS call

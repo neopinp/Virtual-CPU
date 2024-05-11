@@ -1,30 +1,41 @@
-import Interrupt from "./interrupt";
+import { Hardware } from "./Hardware";
+import { InterruptibleHardware } from "./InterruptibleHardware";
 
-class InterruptController {
-    private hardware: Interrupt[] = [];
-    private waitingInterrupts: Interrupt[] = [];
-
-    addHardware(device: Interrupt): void {
-        this.hardware.push(device);
-    }
-
-    removeHardware(device: Interrupt): void {
-        const index = this.hardware.indexOf(device);
-        if (index !== -1) {
-            this.hardware.splice(index, 1);
-        }
-    }
-
-    acceptInterrupt(interrupt: Interrupt): void {
-        this.waitingInterrupts.push(interrupt);
-    }
-
-    handleInterrupts(): Interrupt | undefined {
-        if (this.waitingInterrupts.length === 0) return undefined;
-
-        this.waitingInterrupts.sort((a, b) => b.priority - a.priority);
-        return this.waitingInterrupts.shift();
-    }
+interface QueueElement {
+    device: InterruptibleHardware;
+    priority: number;
 }
 
-export default InterruptController;
+export class InterruptController extends Hardware {
+    private interruptQueue: QueueElement[] = [];
+
+    constructor(debug: boolean = true) {
+        super('InterruptController', debug);
+        this.log('Interrupt controller initialized');
+    }
+
+    registerDevice(device: InterruptibleHardware): void {
+        this.log(`Device registered: ${device.name}`);
+    }
+
+    acceptInterrupt(device: InterruptibleHardware): void {
+        this.log(`Interrupt accepted from: ${device.name}`);
+        // Insert the device into the queue based on its priority
+        const element: QueueElement = { device, priority: device.priority };
+        this.interruptQueue.push(element);
+        this.interruptQueue.sort((a, b) => b.priority - a.priority); // Sort descending by priority
+    }
+
+    getHighestPriorityInterrupt(): InterruptibleHardware | null {
+        const element = this.interruptQueue.shift();
+        return element ? element.device : null;
+    }
+
+    handleInterrupts(): void {
+        const device = this.getHighestPriorityInterrupt();
+        if (device) {
+            this.log(`Handling interrupt from: ${device.name}`);
+            // Additional logic to handle the specific interrupt
+        }
+    }
+}
