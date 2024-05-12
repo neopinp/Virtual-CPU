@@ -64,7 +64,7 @@ export class Memory extends Hardware implements ClockListener {
     public hexAndCharLog(address: number, data: number, char: string): void {
         const hexAddress = address.toString(16).toUpperCase().padStart(4, '0');
         const hexData = data.toString(16).toUpperCase().padStart(2, '0');
-        const displayChar = char.replace(/[\x00-\x1F]/g, '.'); // Replace non-printable characters with '.'
+        const displayChar = char.replace(/[\x00-\x1F]/g, '.'); 
         let message = `Address: ${hexAddress} | Data: ${hexData} ('${displayChar}')`;
         this.log(message);
     }

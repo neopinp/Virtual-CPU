@@ -4,7 +4,7 @@ import { Cpu } from "./Cpu";
 
 export class MMU {
     private memory: Memory;
-    private cpu: Cpu | null = null; // Initialize as null to be set later
+    private cpu: Cpu | null = null; 
 
     constructor(memory: Memory) {
         this.memory = memory;

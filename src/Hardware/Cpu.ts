@@ -45,7 +45,6 @@ export class Cpu extends Hardware implements ClockListener {
     }
 
     pulse(): void {
-        
         if (this.checkAndHandleInterrupts()) {
             
             return;  // If an interrupt is handled, skip the current cycle
@@ -71,7 +70,6 @@ export class Cpu extends Hardware implements ClockListener {
             const interruptDevice = this.interruptController.getHighestPriorityInterrupt();
             if (interruptDevice) {
                 this.log(`Interrupt handled by CPU from device: ${interruptDevice.name}`, 'cpu'); // Add the missing second argument 'cpu'
-                // Handle the interrupt specific tasks
                 return true;
             }
             return false;
@@ -80,7 +78,7 @@ export class Cpu extends Hardware implements ClockListener {
      private fetch(): void {
             if (!this.mmu) throw new Error("MMU not set.");
             this.ir = this.mmu.read(this.pc++);
-            this.log(`Fetched IR: ${this.ir.toString(16)}`, 'cpu'); // Add the missing second argument 'cpu'
+            this.log(`Fetched IR: ${this.ir.toString(16)}`, 'cpu'); 
         }
 
     private decode(): void {
@@ -193,7 +191,7 @@ private getOperandLength(opcode: number): number {
                 break;
             case 0xD0: // BNE
                 if (!this.zFlag) {
-                this.pc += this.signed(this.operand); // Correct branch calculation
+                this.pc += this.signed(this.operand); 
             } else {
                 this.pc++; // Move to the next instruction if not branching
             }
@@ -239,7 +237,7 @@ private getOperandLength(opcode: number): number {
             case 0x8C: // STY Absolute
                 break;
             case 0xA9: // LDA Immediate
-                this.accumulator = this.operand;  // Confirming the data is written back to the accumulator
+                this.accumulator = this.operand; 
                 break;
             case 0xA2: // LDX Immediate
                 this.xRegister = this.operand;

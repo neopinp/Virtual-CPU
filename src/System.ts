@@ -24,8 +24,8 @@ export class System extends Hardware {
 //initializations
     this.memory = new Memory(debug); // memory 
     this.interruptController = new InterruptController(debug);
-    this.keyboard = new Keyboard(debug, this.interruptController); // initalizes keyboard with interrupt controller instance
-    this.cpu = new Cpu(debug); // initalizes CPU without an MMU instance 
+    this.keyboard = new Keyboard(debug, this.interruptController); // initliaze keyboard
+    this.cpu = new Cpu(debug); // initalizes CPU 
     this.cpu.setInterruptController(this.interruptController);
 
         this.mmu = new MMU(this.memory); // initalizes MMU with Memory instance

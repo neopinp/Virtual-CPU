@@ -12,8 +12,8 @@ export class Keyboard extends Hardware implements InterruptibleHardware {
 
     constructor(debug: boolean, private interruptController: InterruptController) {
         super('Keyboard', debug);
-        this.irq = 1;  // Define appropriate IRQ number
-        this.priority = 1;  // Define appropriate priority
+        this.irq = 1;  
+        this.priority = 1; 
         this.monitorKeys();
     }
 
@@ -27,7 +27,7 @@ export class Keyboard extends Hardware implements InterruptibleHardware {
             let keyPressed = Ascii.byteToChar(key[0]);
             this.log(`Key pressed - ${keyPressed}`);
 
-            if (key.toString() === '\u0003') {  // Compare string representations
+            if (key.toString() === '\u0003') {  
                 process.exit();
             }
 
